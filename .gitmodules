@@ -1,0 +1,4 @@
+[submodule "VDW-Kicad-Symbols"]
+	path = VDW-Kicad-Symbols
+	url = https://github.com/bveenema/VDW-Kicad-Symbols.git
+	branch = master

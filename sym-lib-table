@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name VDW_Cabling)(type Legacy)(uri C:/KiCad-Cabling/VDW-Kicad-Symbols/VDW_Cabling.lib)(options "")(descr ""))
+)
