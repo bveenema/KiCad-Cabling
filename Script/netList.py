@@ -45,3 +45,15 @@ def getNetRefs(lastNet, lastRef, netList):
                 if(node['ref'] != lastRef):
                     refs.append(node['ref']);
     return refs;
+
+def getNextNets(ref, componentList, lastNet):
+    from componentList import getComponent;
+    nextNets = [];
+    component = getComponent(ref, componentList);
+    if(component):
+        for connection in component['connections']:
+            if(connection['net'] != lastNet):
+                nextNets.append(connection['net']);
+        return nextNets;
+    else:
+        return None;

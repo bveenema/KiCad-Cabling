@@ -6,12 +6,13 @@ def getComponentList(net):
     # [
     #     {
     #         ref: "HOUSING1",
-    #         Nets:   [
-    #                     "Net-(HOUSING1-Pad3)",
-    #                     "Net-(HOUSING1-Pad2)",
-    #                     "Net-(HOUSING1-Pad1)"
-    #                 ],
-    #         isAnchor: True
+    #         Connections:   [
+    #                           {pin: 3, net: "Net-(HOUSING1-Pad3)"},
+    #                           {pin: 2, net: "Net-(HOUSING1-Pad2)"},
+    #                           {pin: 1, net: "Net-(HOUSING1-Pad1)"}
+    #                        ],
+    #         isAnchor: True,
+    #         KiCadComponent: <comp>,
     #     },
     #     ...
     # ]
@@ -20,8 +21,9 @@ def getComponentList(net):
     for component in components:
         newComponent = {};
         newComponent['ref'] = component.getRef();
-        newComponent['nets'] = [];
+        newComponent['connections'] = [];
         newComponent['isAnchor'] = (str.lower(component.getField("Anchor")) == "yes");
+        newComponent['KiCadComponent'] = component;
         componentList.append(newComponent);
 
     # add nets to components
@@ -32,9 +34,13 @@ def getComponentList(net):
 
         for node in nodes:
             ref = node.attributes["ref"];
+            pin = node.attributes['pin'];
             for component in componentList:
                 if(component['ref'] == ref):
-                    component['nets'].append(netName);
+                    component['connections'].append({'net': netName, 'pin': pin});
+            
+        for component in componentList:
+            component['connections'] = sorted(component['connections'], key=lambda k: k['net'])
 
     return componentList;
 
@@ -43,7 +49,7 @@ def printComponentList(componentList):
     print("-------------");
     for component in componentList:
         print("Ref: ", component['ref']);
-        print('Nets', component['nets']);
+        print('Nets', component['connections']);
         print('isAnchor', component['isAnchor']);
         print("-------------");
 

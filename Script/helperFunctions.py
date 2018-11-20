@@ -9,17 +9,7 @@ def flatten(x):
         else:
             result.append(el)
     return result
-
-def printPaths(paths):
-    print("PATHS");
-    print("-------------");
-    for path in paths:
-        # name, refs, nets, complete
-        print('Name: ',path['name']);
-        print('Refs: ',path['refs']);
-        print('Nets: ',path['nets']);
-        print('complete',path['complete']);
-        print('---------------');
+    
 
 def anyPathIncomplete(paths):
     incomplete = False;

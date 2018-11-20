@@ -49,17 +49,19 @@ class TableMaker():
         if(column >= 0 & row >= 0):
             self.table[row][column] = newValue;
 
-    def addComponent(self, Component, Paths=None, NetList=None, path=None):
+    def addComponent(self, component, path=None, Components=None, Paths=None, NetList=None):
         # ADD HEADERS
+        from componentList import getKiCadComponent;
+        KiCadComponent = getKiCadComponent(component['ref'], Components);
         fields = [];
         import copy;
         currentHeaders = copy.copy(self.table[0]);
-        if(Component.getRef().startswith("HOUSING")):
+        if(KiCadComponent.getRef().startswith("HOUSING")):
             fields = self.makeHousingHeaders(len(currentHeaders));
-        elif(Component.getRef().startswith("TERMINAL")):
-            fields = self.makeTerminalHeaders(Component, currentHeaders);
+        elif(KiCadComponent.getRef().startswith("TERMINAL")):
+            fields = self.makeTerminalHeaders(KiCadComponent, currentHeaders);
         else:
-            fields = Component.getFieldNames();
+            fields = KiCadComponent.getFieldNames();
         # check to make sure the new headers are not the same as the last headers
         if( set(fields) != set(currentHeaders[-len(fields):]) ):
             for header in fields:
@@ -67,13 +69,13 @@ class TableMaker():
             
         # ADD CELL VALUES
         cellValues = [];
-        if(Component.getRef().startswith("HOUSING") and Paths and NetList):
-            self.populateHousingCells(Component, Paths, NetList);
-        elif(Component.getRef().startswith('TERMINAL')):
-            self.populateTerminalCells(Component, fields, path);
+        if(KiCadComponent.getRef().startswith("HOUSING") and Paths and NetList):
+            self.populateHousingCells(component, KiCadComponent, Paths, NetList);
+        elif(KiCadComponent.getRef().startswith('TERMINAL')):
+            self.populateTerminalCells(KiCadComponent, fields, path);
         else:
             for field in fields:
-                cellValues.append({'fieldName': field, 'value': Component.getField(field)});
+                cellValues.append({'fieldName': field, 'value': KiCadComponent.getField(field)});
             for cell in cellValues:
                 self.updateCell(cell['value'], cell['fieldName'], path['name']);
 
@@ -85,38 +87,49 @@ class TableMaker():
             fields = ['Position', 'Housing', 'Label'];
         return fields;
 
-    def makeTerminalHeaders(self, Component, currentHeaders):
+    def makeTerminalHeaders(self, KiCadComponent, currentHeaders):
         fields = [];
         if 'Terminal' not in currentHeaders:
             fields = ['Terminal'];
-            for field in Component.getFieldNames():
+            for field in KiCadComponent.getFieldNames():
                 fields.append(field);
         else:
-            for field in Component.getFieldNames():
+            for field in KiCadComponent.getFieldNames():
                 fields.append(field);
             fields.append('Terminal');
         return fields;
 
-    def populateHousingCells(self, Component, Paths, NetList):
+    def populateHousingCells(self, component, KiCadComponent, Paths, NetList):
         cellValues = [];
         from componentList import getPosition;
+        remainingPositions = [];
+        unusedPaths = [];
+        for connection in component['connections']:
+            remainingPositions.append(connection['pin']);
         for i, path in enumerate(Paths):
             if(i==0):
-                cellValues.append({ 'fieldName': 'Label', 'value': Component.getField('Label') });
-                cellValues.append({ 'fieldName': 'Housing', 'value': Component.getValue() });
-            cellValues.append({ 'fieldName': 'Position', 'value': getPosition(Component.getRef(), path['nets'][-1], NetList)});
+                cellValues.append({ 'fieldName': 'Label', 'value': KiCadComponent.getField('Label') });
+                cellValues.append({ 'fieldName': 'Housing', 'value': KiCadComponent.getValue() });
+            position = getPosition(component['ref'], path['nets'][-1], NetList)
+            if(position):
+                cellValues.append({ 'fieldName': 'Position', 'value': position });
+                remainingPositions.remove(position);
+            else:
+                unusedPaths.append(path['name']);
             for cell in cellValues:
                 self.updateCell(cell['value'], cell['fieldName'], path['name']);
             cellValues = [];
+        for position in remainingPositions:
+            cellValues.append({ 'fieldName': 'Position', 'value': position });
+            self.updateCell(position, 'Position', unusedPaths.pop(0));
 
-    def populateTerminalCells(self, Component, fields, path):
+    def populateTerminalCells(self, KiCadComponent, fields, path):
         cellValues = [];
         for field in fields:
             if(field == 'Terminal'):
-                cellValues.append({'fieldName': field, 'value': Component.getValue()});
+                cellValues.append({'fieldName': field, 'value': KiCadComponent.getValue()});
             else: 
-                cellValues.append({'fieldName': field, 'value': Component.getField(field)});
-        print(cellValues);
+                cellValues.append({'fieldName': field, 'value': KiCadComponent.getField(field)});
         for cell in cellValues:
             self.updateCell(cell['value'], cell['fieldName'], path['name']);
 
