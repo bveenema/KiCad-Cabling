@@ -28,13 +28,12 @@ class CablePaths:
 
     def branchPath(self, pathName, newRefs, newNets):
         print('Branching: ',pathName);
-        pathFamily = []
+        newPaths = [];
         # get the path object
         branchedPath = {};
         for path in self.paths:
             if(path['name'] == pathName):
                 branchedPath = path;
-                pathFamily.append(branchedPath);
         print(branchedPath);
 
         # first ref goes to 'branchedPath' additional refs go to new paths
@@ -49,8 +48,8 @@ class CablePaths:
                 else:
                     newName = branchedPath['name'] + '.1'
                     branchedPath['branches'] = 1;
-                pathFamily.append(self._createPath(newName, ref, newNets[i][0]));
-        return pathFamily;
+                newPaths.append(self._createPath(newName, ref, newNets[i][0]));
+        return newPaths;
 
     def _createPath(self, name, ref, net):
         path = {};

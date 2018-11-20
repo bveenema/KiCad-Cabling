@@ -134,6 +134,8 @@ class TableMaker():
             self.updateCell(cell['value'], cell['fieldName'], path['name']);
 
     def formatCSV(self):
+        # sort table by Row Label
+        self.sortTable();
         # strip ROW LABELS
         import copy
         formattedTable = copy.deepcopy(self.table);

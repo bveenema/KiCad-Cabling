@@ -78,10 +78,14 @@ while(x < 100):
                         nextNets.append(getNextNets(ref, componentList, lastNet));
                     print(nextNets);
                     newPaths = Paths.branchPath(path['name'], refs, nextNets);
+                    # update newly branched paths
                     for newPath in newPaths:
                         component = getComponent(newPath['refs'][-1], componentList);
-                        table.addComponent(component, path, Components, Paths.getPaths(), NetList);
-                    path['complete'] = True;
+                        table.addPath(newPath['name']);
+                        table.addComponent(component, newPath, Components, Paths.getPaths(), NetList);
+                    # update old path
+                    component = getComponent(refs[0], componentList);
+                    table.addComponent(component, path, Components, Paths.getPaths(), NetList);
                 else:
                     path['complete'] = True;
     tableCount += 1;
