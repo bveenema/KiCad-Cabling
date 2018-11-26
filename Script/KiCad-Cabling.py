@@ -24,10 +24,7 @@ componentList = getComponentList(net);
 # Get an Anchor component and start Paths
 Tables = []
 tableCount = 0;
-# while(len(componentList) > 0):
-x = 0;
-while(x < 100):
-    x += 1;
+while(len(componentList) > 0):
     Tables.append(TableMaker());
     table = Tables[tableCount];
     Paths = CablePaths();
@@ -51,10 +48,7 @@ while(x < 100):
     # Get next component, by looking up last net in path.nets in NetList, 
     # then lookup the next net for that component by looking in componentList, 
     # then remove component from componentList
-    #while anyPathIncomplete(Paths):
-    y=0;
-    while(y<100):
-        y += 1;
+    while Paths.anyPathIncomplete():
         for path in Paths.getPaths():
             if(path['complete'] == False):
                 lastNet = path['nets'][-1];
@@ -80,12 +74,16 @@ while(x < 100):
                     newPaths = Paths.branchPath(path['name'], refs, nextNets);
                     # update newly branched paths
                     for newPath in newPaths:
-                        component = getComponent(newPath['refs'][-1], componentList);
+                        ref = newPath['refs'][-1]
+                        component = getComponent(ref, componentList);
                         table.addPath(newPath['name']);
                         table.addComponent(component, newPath, Components, Paths.getPaths(), NetList);
+                        componentList = removeComponent(ref, componentList)
                     # update old path
-                    component = getComponent(refs[0], componentList);
+                    ref = refs[0];
+                    component = getComponent(ref, componentList);
                     table.addComponent(component, path, Components, Paths.getPaths(), NetList);
+                    componentList = removeComponent(ref, componentList)
                 else:
                     path['complete'] = True;
     tableCount += 1;

@@ -60,6 +60,13 @@ class CablePaths:
         self.paths.append(path);
         return path;
 
+    def anyPathIncomplete(self):
+        for path in self.paths:
+            if(path['complete'] == False):
+                return True;
+        return False;
+
+
     def printPaths(self):
         print("PATHS");
         print("-------------");
