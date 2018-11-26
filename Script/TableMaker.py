@@ -62,6 +62,9 @@ class TableMaker():
             fields = self.makeTerminalHeaders(KiCadComponent, currentHeaders);
         else:
             fields = KiCadComponent.getFieldNames();
+        # strip any "Anchor" Fields
+        if 'Anchor' in fields:
+            fields.remove('Anchor');
         # check to make sure the new headers are not the same as the last headers
         if( set(fields) != set(currentHeaders[-len(fields):]) ):
             for header in fields:
@@ -128,7 +131,7 @@ class TableMaker():
         for field in fields:
             if(field == 'Terminal'):
                 cellValues.append({'fieldName': field, 'value': KiCadComponent.getValue()});
-            else: 
+            elif(field != "Anchor"): 
                 cellValues.append({'fieldName': field, 'value': KiCadComponent.getField(field)});
         for cell in cellValues:
             self.updateCell(cell['value'], cell['fieldName'], path['name']);
